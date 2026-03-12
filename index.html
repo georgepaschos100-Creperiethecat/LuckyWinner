@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claw Luck Machine</title>
+
+<style>
+
+body{
+font-family:Arial;
+background:#181818;
+color:white;
+text-align:center;
+margin:0;
+}
+
+h1{
+margin-top:20px;
+}
+
+.machine{
+margin:auto;
+margin-top:20px;
+width:260px;
+background:#2b2b2b;
+padding:20px;
+border-radius:15px;
+}
+
+.claw{
+font-size:50px;
+}
+
+button{
+margin-top:15px;
+padding:14px 30px;
+font-size:18px;
+border:none;
+border-radius:10px;
+cursor:pointer;
+background:#00c47a;
+color:white;
+}
+
+button:disabled{
+background:gray;
+cursor:not-allowed;
+}
+
+.result{
+margin-top:15px;
+font-size:20px;
+}
+
+.rare{color:#5dcaff;}
+.epic{color:#c26bff;}
+.mythic{color:#ff8c3a;}
+.legend{color:#ffd700;}
+.super{color:#ff2a2a;}
+
+.collection{
+width:300px;
+margin:auto;
+margin-top:20px;
+text-align:left;
+background:#222;
+padding:15px;
+border-radius:10px;
+}
+
+.admin{
+margin-top:10px;
+font-size:12px;
+background:#444;
+}
+
+</style>
+</head>
+
+<body>
+
+<h1>🎰 Claw Luck Machine</h1>
+
+<div class="collection" id="collection"></div>
+
+<div class="machine">
+
+<div class="claw">🕹️</div>
+
+<button id="getBtn" onclick="roll()">GET</button>
+
+<div class="result" id="result">Press GET</div>
+
+<button class="admin" onclick="admin()">ADMIN</button>
+
+</div>
+
+<script>
+
+const items = {
+
+rare:[
+"Blue Ball",
+"Sticker Pack",
+"Mini Duck"
+],
+
+epic:[
+"Robot Toy",
+"Golden Sticker",
+"Mini Drone",
+"Arcade Coin"
+],
+
+mythic:[
+"Crystal Cube",
+"Neon Teddy",
+"Galaxy Orb",
+"Magic Card"
+],
+
+legend:[
+"Golden Teddy",
+"Diamond Ball",
+"Arcade Pass"
+],
+
+super:[
+"Platinum Crown",
+"Cosmic Relic"
+]
+
+};
+
+let collection = JSON.parse(localStorage.getItem("collection")) || [];
+
+let uses = JSON.parse(localStorage.getItem("uses")) || 0;
+
+let date = localStorage.getItem("date");
+
+let today = new Date().toDateString();
+
+let adminMode=false;
+
+if(date!==today){
+uses=0;
+adminMode=false;
+localStorage.setItem("date",today);
+}
+
+updateButton();
+renderCollection();
+
+function roll(){
+
+if(uses>=5 && !adminMode)return;
+
+uses++;
+
+localStorage.setItem("uses",uses);
+
+let r=Math.random();
+
+let rarity;
+let pool;
+
+if(r<0.60){rarity="rare";pool=items.rare;}
+else if(r<0.82){rarity="epic";pool=items.epic;}
+else if(r<0.94){rarity="mythic";pool=items.mythic;}
+else if(r<0.98){rarity="legend";pool=items.legend;}
+else{rarity="super";pool=items.super;}
+
+let item=pool[Math.floor(Math.random()*pool.length)];
+
+if(!collection.includes(item)){
+collection.push(item);
+localStorage.setItem("collection",JSON.stringify(collection));
+}
+
+document.getElementById("result").innerHTML=
+`You got: <span class="${rarity}">${item} (${rarity.toUpperCase()})</span>`;
+
+renderCollection();
+updateButton();
+
+}
+
+function updateButton(){
+
+if(uses>=5 && !adminMode){
+document.getElementById("getBtn").disabled=true;
+}
+}
+
+function admin(){
+
+let code=prompt("Enter admin code");
+
+if(code==="2589"){
+adminMode=true;
+alert("Admin unlocked 🔓 unlimited GET today");
+document.getElementById("getBtn").disabled=false;
+}
+
+}
+
+function renderCollection(){
+
+let html="<b>Collection</b><br>";
+
+let all=[...items.rare,...items.epic,...items.mythic,...items.legend,...items.super];
+
+all.forEach(item=>{
+
+let check=collection.includes(item)?"✅":"⬜";
+
+html+=`${check} ${item}<br>`;
+
+});
+
+document.getElementById("collection").innerHTML=html;
+
+}
+
+</script>
+
+</body>
+</html>
