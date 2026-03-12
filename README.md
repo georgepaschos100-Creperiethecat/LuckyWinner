@@ -1,2 +1,0 @@
-# LuckyWinner
-Test your aura
